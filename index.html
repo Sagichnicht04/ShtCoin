@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SHIT Miner</title>
+  <style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: linear-gradient(to right, #fff7ae, #ffe38f);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        }
+
+        .container {
+        text-align: center;
+        padding: 20px;
+        }
+
+        h1 {
+        font-size: 2.5rem;
+        color: #6b4c00;
+        margin-bottom: 20px;
+        }
+
+        .card {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        max-width: 400px;
+        margin: auto;
+        }
+
+        input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        font-size: 1rem;
+        margin-top: 10px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        }
+
+        button {
+        margin-top: 10px;
+        padding: 10px;
+        width: 100%;
+        font-size: 1rem;
+        background-color: #f6c500;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        }
+
+        button:hover {
+        background-color: #dcb800;
+        }
+
+        #message {
+        margin-top: 10px;
+        font-size: 0.9rem;
+        color: #333;
+        }
+
+        .balance {
+        margin-top: 20px;
+        font-size: 1.2rem;
+        color: #7a5500;
+        }
+
+        .welcome {
+          text-align: center;
+          padding: 20px;
+          background: rgba(255, 255, 255, 0.8);
+          border-radius: 16px;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+          margin: auto;
+        }
+
+        .coin-container {
+          width: 250px;
+          height: 250px;
+          perspective: 1000px;
+          margin: 50px auto;
+        }
+
+        .coin {
+          width: 250px;
+          height: 250px;
+          position: relative;
+          transform-style: preserve-3d;
+          animation: flip 2s infinite linear;
+        }
+
+        .coin-face {
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          backface-visibility: hidden;
+          background-size: cover;
+          background-position: center;
+          border-radius: 50%;
+        }
+
+        .coin-front {
+          background-image: url("static/shitcoin1.png");
+        }
+
+        .coin-back {
+          background-image: url("static/shitcoin2.png");
+          transform: rotateY(180deg);
+        }
+
+        @keyframes flip {
+          0% {
+            transform: rotateY(0deg);
+          }
+          100% {
+            transform: rotateY(360deg);
+          }
+        }
+
+        .falling-coin {
+          position: absolute;
+          top: -100px;
+          width: 100px;
+          height: 100px;
+          background-image: url("/static/shitcoin2.png");
+          background-size: cover;
+          background-position: center;
+          animation-name: fall;
+          animation-timing-function: linear;
+          animation-fill-mode: forwards;
+          pointer-events: none;
+          z-index: -1;
+        }
+
+        @keyframes fall {
+          0% {
+            transform: translateY(-100px) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(110vh) rotate(720deg);
+            opacity: 0;
+          }
+        }
+
+
+  </style>
+</head>
+<body>
+    <div class="coin-container">
+      <div class="coin">
+        <div class="coin-face coin-front"></div>
+        <div class="coin-face coin-back"></div>
+      </div>
+    </div>
+
+    <div class="welcome">
+        <h3>We present</h3>
+        <h1>The Smart Hyperledger Infrastructure Token</h1>
+        <p><i>SHIT</i> /siːt/ is a revolutionary crypto asset that redefines how digital value is created. Unlike traditional cryptocurrencies such as Bitcoin, which rely on energy and intensive hardware mining, SHIT is mined through human intuition, creativity, and logical reasoning.
+        </p>
+        <p>
+          <b>In SHIT, your brain is the miner.</b>
+        </p>
+
+        <h1>How it works</h1>
+        <p>
+          Instead of burning electricity to brute-force hash puzzles, SHIT presents miners with a randomly generated number. The miner must then reverse-engineer a valid mathematical expression that evaluates exactly to this number.</p>
+          <p>This mathematical expression is entered in a Synchronous Human-Interface Token Tallying Yoke (SHITTY /siːti/) device. The SHITTY transmits that result to a centralized SHIT Server for comparison with the expected number. </p>
+          <p><b>A hit will be rewarded with a SHIT.</b></p>
+          <button onclick="startMining()">Start Mining!</button>
+    </div>
+
+    <div class="container" hidden>
+      <div class="balance", style="font-size: 75px;">Balance: <span id="balance">0</span></div>
+      
+      <h1>SHIT Miner</h1>
+      <div class="card">
+        <p>Target Number: <span id="target-number"></span></p>
+        <pre id="output"></pre>
+        <p id="message"></p>
+      </div>
+    </div>
+    <div class="coin-container">
+      <div class="coin">
+        <div class="coin-face coin-front"></div>
+        <div class="coin-face coin-back"></div>
+      </div>
+    </div>
+
+  <script>
+    let targetNumber = generateNumber();
+    let balance = 0;
+    let showWelcome = true;
+
+    document.getElementById("target-number").textContent = targetNumber;
+
+    const eventSource = new EventSource("/stream");
+    eventSource.onmessage = function(event) {
+        document.getElementById("output").textContent = event.data;
+        checkAnswer();
+    };
+
+    function startMining(){
+      showWelcome = false
+      document.querySelector(".container").removeAttribute("hidden");
+      document.querySelector(".welcome").setAttribute("hidden", true);
+    }
+
+    function generateNumber() {
+        return Math.floor(Math.random() * 65000) + 1;
+    }
+
+    function checkAnswer() {
+        const input = document.getElementById("output").innerHTML;
+        const message = document.getElementById("message");
+
+        try {
+            const result = Function('"use strict"; return (' + input + ')')();
+            if (result === targetNumber) {
+            balance++;
+            document.getElementById("balance").textContent = balance;
+            message.textContent = "✅ Correct! You've mined 1 Shitcoin.";
+            targetNumber = generateNumber();
+            document.getElementById("target-number").textContent = targetNumber;
+            coinFall();
+            } else {
+            message.textContent = "❌ Wrong answer. Try again!";
+            }
+        } catch (e) {
+            message.textContent = "⚠️ Invalid expression.";
+        }
+    }
+
+    function coinFall(){
+      const numCoins = 100;
+      for (let i = 0; i < numCoins; i++) {
+        const coin = document.createElement('div');
+        coin.className = 'falling-coin';
+
+        // Random horizontal position (0–100vw)
+        coin.style.left = `${Math.random() * 100}vw`;
+
+        // Random size
+        const size = 20 + Math.random() * 30; // 20px to 50px
+        coin.style.width = `${size}px`;
+        coin.style.height = `${size}px`;
+
+        // Random animation delay (0–2s)
+        coin.style.animationDelay = `${Math.random() * 2}s`;
+
+        // Random animation duration (2–5s)
+        coin.style.animationDuration = `${2 + Math.random() * 3}s`;
+
+        document.body.appendChild(coin);
+      }
+    }    
+  </script>
+</body>
+</html>

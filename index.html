@@ -216,7 +216,7 @@
     }
 
     function generateNumber() {
-        return Math.floor(Math.random() * 65000) + 1;
+        return Math.floor(Math.random() * 254) + 1;
     }
 
     function checkAnswer() {
@@ -233,7 +233,7 @@
             document.getElementById("target-number").textContent = targetNumber;
             coinFall();
             } else {
-            message.textContent = "❌ Wrong answer. Try again!";
+            message.textContent = "";
             }
         } catch (e) {
             message.textContent = "⚠️ Invalid expression.";

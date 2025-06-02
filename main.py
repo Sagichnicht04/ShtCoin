@@ -7,6 +7,11 @@ FILE_PATH = "log.txt"
 
 HTML_TEMPLATE = ""
 
+def get_decimal(input_string):
+    input_string = input_string.split(" ")
+    del input_string[0]
+    input_string = "".join(input_string)
+    return int(input_string, 2)
 
 @app.route('/')
 def index():
@@ -24,7 +29,7 @@ def stream():
                     content = f.read().split('\n')[-1].strip()
                     if content != last_content:
                         last_content = content
-                        yield f"data: {content}\n\n"
+                        yield f"data: {get_decimal(content)}\n\n"
             except Exception as e:
                 yield f"data: Error: {str(e)}\n\n"
             time.sleep(1)
